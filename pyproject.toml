@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hearthstone-card-asset-extractor"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+dependencies = [
+    "UnityPy~=1.24.1",
+]
+
+[project.scripts]
+hearth-asset = "cli:main"
+build = "build_script:build"
+
+[project.optional-dependencies]
+build = [
+    "PyInstaller>=6.17.0",
+]
+
