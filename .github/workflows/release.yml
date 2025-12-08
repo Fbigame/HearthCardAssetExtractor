@@ -8,6 +8,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,40 +23,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install setuptools wheel twine
+          pip install setuptools wheel twine build
       
       - name: Build package
         run: |
           python -m build
       
       - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+        run: |
+          gh release create ${{ github.ref_name }} --title "Release ${{ github.ref_name }}" --generate-notes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
+        run: |
+          gh release upload ${{ github.ref_name }} ./dist/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/*.tar.gz
-          asset_name: ${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz
-          asset_content_type: application/gzip
-      
-      - name: Upload Wheel
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/*.whl
-          asset_name: ${{ github.event.repository.name }}-${{ github.ref_name }}-py3-none-any.whl
-          asset_content_type: application/zip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
