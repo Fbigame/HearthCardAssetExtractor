@@ -83,6 +83,10 @@ hearth-card-asset [OPTION]
 - `-v`、`--version`：显示工具版本
   - 例如：`--version`
 
+- `--ensure_ascii`：确保输出使用 ASCII 编码
+  - 默认值：`false`（使用 UTF-8 编码）
+  - 例如：`--ensure_ascii`
+
 ### 使用示例
 
 1. 提取所有卡牌的普通图片和攻击音频（中文）：

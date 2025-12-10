@@ -21,7 +21,6 @@ class CardSoundSpellNormalReturnDict(TypedDict, total=False):
 
 class CardSpecificVoDataReturnDict(TypedDict):
     m_CardId: str
-    m_GameStringKey: str
     m_RequireTag: int
     m_SideToSearch: int
     m_TagValue: int
@@ -30,6 +29,8 @@ class CardSpecificVoDataReturnDict(TypedDict):
 
 class CardSpecificVoDataDict(TypedDict, total=False):
     guid: str
+    GameStringKey: str
+    GameStringValue: dict[str, str]
     condition: CardSpecificVoDataReturnDict
     files: Sequence[str]
 
@@ -73,7 +74,7 @@ class CommonUnity3d:
         path_id = game_object['m_Component'][1]['component']['m_PathID']
         return self.path_id[path_id].read_typetree()
     
-    def CardSoundSpell(self, guid: str) -> CardSoundSpellReturnDict | None:
+    def CardSoundSpell(self, guid: str, gameplay_audio: dict[str, dict[str, str]]) -> CardSoundSpellReturnDict | None:
         game_object = self.container[guid].read_typetree()
         path_id = game_object['m_Component'][1]['component']['m_PathID']
         card_sound_spell: CardSoundSpellDict = self.path_id[path_id].read_typetree()
@@ -94,9 +95,13 @@ class CommonUnity3d:
                     continue
                 specific.append({
                     'guid': audio_guid.split(':')[-1],
+                    'GameStringKey': (key := data['m_GameStringKey']),
+                    'GameStringValue': {
+                        locale: text
+                        for locale, text in gameplay_audio.get(key, {}).items()
+                    },
                     'condition': {
                         'm_CardId': data['m_CardId'],
-                        'm_GameStringKey': data["m_GameStringKey"],
                         'm_RequireTag': data["m_RequireTag"],
                         'm_SideToSearch': data["m_SideToSearch"],
                         'm_TagValue': data["m_TagValue"],

@@ -5,7 +5,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
-
+from version import __version__
 from unity3d.asset_manifest import AssetManifest
 
 __all__ = [
@@ -81,13 +81,14 @@ class HearthstoneExtractContext:
     image_options: tuple[str, ...]
     audio_options: tuple[str, ...]
     locale_options: tuple[str, ...]
+    ensure_ascii: bool
 
 
 def parse_args() -> HearthstoneExtractContext:
     parser = argparse.ArgumentParser(description="Hearthstone card asset extractor")
     
     # Add help and version handling
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2.1')
+    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {__version__}')
     
     # 输入参数
     parser.add_argument(
@@ -148,6 +149,13 @@ def parse_args() -> HearthstoneExtractContext:
         default="none"
     )
     
+    # ensure_ascii参数
+    parser.add_argument(
+        "--ensure_ascii",
+        action='store_true',
+        help="Ensure ASCII encoding for output (default: false)"
+    )
+    
     # 如果没有传任何参数，打印帮助并退出
     if len(sys.argv) == 1:
         parser.print_help()
@@ -169,10 +177,10 @@ def parse_args() -> HearthstoneExtractContext:
         image_options=args.image,
         audio_options=args.audio,
         locale_options=args.locale,
+        ensure_ascii=args.ensure_ascii,
         card_ids=(
             tuple(asset_manifest.cards_map.keys())
             if args.id == 'all'
             else tuple(id.strip() for id in args.id.split(",") if id.strip())
         ),
-    
     )

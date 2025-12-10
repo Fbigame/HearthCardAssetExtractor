@@ -1,5 +1,9 @@
+import argparse
+import csv
+import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Sequence
 
 from unity3d import AssetManifest
 
@@ -11,6 +15,8 @@ class Context:
     asset_manifest: AssetManifest
     locale_options: tuple[str, ...]
     card_id: str
+    ensure_ascii: bool
+    gameplay_audio: dict[str, dict[str, str]]
 
 
 def load_emote_type(input_path: Path):
@@ -29,6 +35,24 @@ def load_emote_type(input_path: Path):
     values = [System.Enum.Parse(enum_type, n).value__ for n in names]
     
     return {v: n for n, v in zip(names, values)}
+
+
+def load_strings_gameplay_audio(input_path: Path, locales: Sequence[str]):
+    result = {}
+    
+    for locale in locales:
+        path = input_path / 'Strings' / f'{locale[:2]}{locale[-2:].upper()}' / 'GAMEPLAY_AUDIO.txt'
+        if not path.exists():
+            logging.warning(f'File {path} not exists')
+            continue
+        with path.open('r', encoding="utf-8") as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            for row in reader:
+                # 祖传代码，忘记以前是踩了什么地方的坑要加\x00了
+                tag: str = row['TAG'].replace("\x00", '') # noqa
+                text: str = row['TEXT'].replace("\x00", '') # noqa
+                result.setdefault(tag, {})[locale] = text
+    return result
 
 
 def get_guid(source: str) -> str | None:

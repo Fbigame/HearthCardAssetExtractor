@@ -12,7 +12,10 @@ from utils.helper import Context, get_guid
 
 def parse_card_sound_spell(context: Context, guid: str):
     bundle = context.asset_manifest.base_assets_catalog[guid]
-    card_sound_spell = CommonUnity3d(context.input, bundle).CardSoundSpell(guid)
+    card_sound_spell = CommonUnity3d(context.input, bundle).CardSoundSpell(
+        guid,
+        gameplay_audio=context.gameplay_audio
+    )
     return card_sound_spell
 
 
@@ -92,8 +95,8 @@ def extract_audio(context: Context, effect_def: CardDefEffectDefDict, option: st
         for i, unit in enumerate(sound_spells, start=1):
             extract_card_sound_spell_data(context, unit, save_dir, f'sound_spell_{i}')
     
-    with (save_dir / 'struct.json').open('w') as f:
-        json.dump(struct, f, indent=2)
+    with (save_dir / 'struct.json').open('w', encoding='utf-8') as f:
+        json.dump(struct, f, indent=2, ensure_ascii=context.ensure_ascii)
 
 
 def extract_audio_list(context: Context, effect_defs: list[CardDefEffectDefDict], option: str):
@@ -119,6 +122,11 @@ def extract_audio_emote(
         unit = {
             'emote_type': effect_def['m_emoteType'],
             'emote_type_name': name,
+            'GameStringKey': (key := effect_def['m_emoteGameStringKey']),
+            'GameStringValue': {
+                locale: text
+                for locale, text in context.gameplay_audio.get(key, {}).items()
+            }
         }
         if (
                 (guid := get_guid(effect_def['m_emoteSoundSpellPath']))
@@ -134,5 +142,5 @@ def extract_audio_emote(
             extract_card_sound_spell_data(context, card_sound_spell, save_dir, f'{name}_spell')
         struct.append(unit)
     
-    with (save_dir / 'struct.json').open('w') as f:
-        json.dump(struct, f, indent=2)
+    with (save_dir / 'struct.json').open('w', encoding='utf-8') as f:
+        json.dump(struct, f, indent=2, ensure_ascii=context.ensure_ascii)

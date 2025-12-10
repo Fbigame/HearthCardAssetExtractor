@@ -1,3 +1,3 @@
-import subprocess
+from cli import main
 
-subprocess.check_call(["dist\\hearth-card-asset.exe"])
+main()
