@@ -26,14 +26,18 @@ def extract_card(
         locale_options=context.locale_options,
         card_id=card_id,
         ensure_ascii=context.ensure_ascii,
-        enable_sub_struct=context.enable_sub_struct
+        enable_sub_struct=context.enable_sub_struct,
+        no_assets=context.no_assets,
+        merged_struct=context.merged_struct,
     )
     struct = {
         'image': extract_images(card_context, card_def, context.image_options),
         'audio': extract_audios(card_context, card_def, context.audio_options),
     }
-    
-    path = context.output_path / card_id / 'struct.json'
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open('w', encoding='utf-8') as f:
-        json.dump(struct, f, indent=2, ensure_ascii=context.ensure_ascii)
+    if not context.merged_struct or context.enable_sub_struct:
+        path = context.output_path / card_id / 'struct.json'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open('w', encoding='utf-8') as f:
+            json.dump(struct, f, indent=2, ensure_ascii=context.ensure_ascii)
+
+    return struct

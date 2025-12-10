@@ -14,10 +14,17 @@ __all__ = [
 ]
 
 
-def configure_logging(output_path):
+def configure_logging(output_path, level: str):
+    level = {
+        'debug': logging.DEBUG,
+        'info': logging.info,
+        'warning': logging.WARNING,
+        'error': logging.ERROR,
+        'critical': logging.CRITICAL,
+    }.get(level, logging.WARNING)
     logging.basicConfig(
         filename=output_path / "log.txt",
-        level=logging.INFO,
+        level=level,
         filemode='w',
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
@@ -83,6 +90,8 @@ class HearthstoneExtractContext:
     locale_options: tuple[str, ...]
     ensure_ascii: bool
     enable_sub_struct: bool
+    no_assets: bool
+    merged_struct: bool
 
 
 def parse_args() -> HearthstoneExtractContext:
@@ -165,6 +174,31 @@ def parse_args() -> HearthstoneExtractContext:
         "Note: The overall struct.json will always be output in the card_id folder regardless of this setting."
     )
     
+    # no_assets参数
+    parser.add_argument(
+        "--no_assets",
+        action='store_true',
+        help="Only output struct.json, do not output asset files (default: false)."
+    )
+    
+    # merged_struct参数
+    parser.add_argument(
+        "--merged_struct",
+        action='store_true',
+        help="Merge output/{card_id}/struct.json into output/struct.json (default: false).\n"
+        "Note: If enable_sub_struct is true, output/{card_id}/struct.json will still be output."
+    )
+    
+    # log_level参数
+    parser.add_argument(
+        "--log_level",
+        type=str,
+        choices=['debug', 'info', 'warning', 'error', 'critical'],
+        default='error',
+        help="Set the logging level (default: error).\n"
+        "Available options: debug, info, warning, error, critical"
+    )
+    
     # 如果没有传任何参数，打印帮助并退出
     if len(sys.argv) == 1:
         parser.print_help()
@@ -178,7 +212,7 @@ def parse_args() -> HearthstoneExtractContext:
         raise argparse.ArgumentTypeError('At least one of --audio or --image must be specified')
     output: Path = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    configure_logging(output)
+    configure_logging(output, args.log_level)
     return HearthstoneExtractContext(
         input_path=(input_path := args.input.resolve()),
         output_path=output,
@@ -188,6 +222,8 @@ def parse_args() -> HearthstoneExtractContext:
         locale_options=args.locale,
         ensure_ascii=args.ensure_ascii,
         enable_sub_struct=args.enable_sub_struct,
+        no_assets=args.no_assets,
+        merged_struct=args.merged_struct,
         card_ids=(
             tuple(asset_manifest.cards_map.keys())
             if args.id == 'all'

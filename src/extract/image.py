@@ -31,16 +31,18 @@ def extract_asset(
         if locale != 'enus' and base_guid in (map_ := context.asset_manifest.asset_catalog_locale[locale]):
             guid, bundle = map_[base_guid]['guid'], map_[base_guid]['bundle']
         
-        asset_unity3d = CommonUnity3d(context.input, bundle)
-        obj = asset_unity3d.env.container[guid]
-        save_dir.mkdir(parents=True, exist_ok=True)
         path = (save_dir / f'{name}_{locale}.png').as_posix()
-        data = obj.deref_parse_as_object()
-        data.image.save(path)
+        
         result[locale] = {
             'guid': guid,
             'file': path,
         }
+        if not context.no_assets:
+            save_dir.mkdir(parents=True, exist_ok=True)
+            asset_unity3d = CommonUnity3d(context.input, bundle)
+            obj = asset_unity3d.env.container[guid]
+            data = obj.deref_parse_as_object()
+            data.image.save(path)
     return result
 
 

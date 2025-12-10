@@ -15,7 +15,8 @@ def extract_asset(
         return {}
     result = {}
     save_dir = context.output / context.card_id / 'audio' / option
-    save_dir.mkdir(parents=True, exist_ok=True)
+    if not context.no_assets:
+        save_dir.mkdir(parents=True, exist_ok=True)
     for locale in context.locale_options:
         guid = base_guid
         files = []
@@ -29,8 +30,9 @@ def extract_asset(
         for i, data in enumerate(samples.values(), start=1):
             path = save_dir / f'{prefix}_{locale}{i}.wav'
             files.append(path.as_posix())
-            with path.open('wb') as f:
-                f.write(data)
+            if not context.no_assets:
+                with path.open('wb') as f:
+                    f.write(data)
         result[locale] = {
             'guid': guid,
             'files': files,

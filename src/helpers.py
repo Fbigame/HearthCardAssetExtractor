@@ -17,8 +17,9 @@ class CardContext:
     card_id: str
     ensure_ascii: bool
     enable_sub_struct: bool
+    no_assets: bool
+    merged_struct: bool
     gameplay_audio: dict[str, dict[str, str]] | None = None
-
 
 @lru_cache(maxsize=1)
 def load_emote_type(input_path: Path):

@@ -80,7 +80,7 @@ class CommonUnity3d:
         card_sound_spell: CardSoundSpellDict = self.path_id[path_id].read_typetree()
         
         if 'm_CardSoundData' not in card_sound_spell:
-            logging.info(f'guid {guid} in {self._filename} 不是 CardSoundSpell')
+            logging.warning(f'guid {guid} in {self._filename} 不是 CardSoundSpell')
             return None
         result = {}
         path_id = card_sound_spell['m_CardSoundData']['m_AudioSource']['m_PathID']

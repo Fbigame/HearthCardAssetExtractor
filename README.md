@@ -92,6 +92,21 @@ hearth-card-asset [OPTION]
   - 例如：`--sub_struct`（在card_id文件夹和子文件夹下都输出struct.json）
   - 注意：无论是否开启此参数，都会在card_id文件夹下输出总体的struct.json
 
+- `--no_assets`：仅输出struct.json，不输出资源文件
+  - 默认值：`false`
+  - 例如：`--no_assets`
+  - 说明：给想要快速查看文件结构的人使用
+
+- `--merged_struct`：将output/{card_id}/struct.json合并为output/struct.json
+  - 默认值：`false`
+  - 例如：`--merged_struct`
+  - 注意：如果开启了enable_sub_struct，那么output/{card_id}/struct.json仍然会输出；否则，仅在output/下输出合并后的struct.json
+
+- `--log_level`：设置日志记录等级
+  - 默认值：`info`
+  - 可选值：`debug`, `info`, `warning`, `error`, `critical`
+  - 例如：`--log_level debug` 或 `--log_level error`
+
 ### 使用示例
 
 1. 提取所有卡牌的普通图片和攻击音频（中文）：
