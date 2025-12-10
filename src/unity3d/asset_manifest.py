@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 from functools import cached_property
 from pathlib import Path
@@ -59,17 +60,20 @@ class AssetCatalogLocale:
         if locale in self._cache:
             return self._cache[locale]
         path = self._unity3d_folder / f'asset_manifest_{locale[:2]}{locale[-2:].upper()}.unity3d'
-        if not path.exists():
-            raise argparse.ArgumentTypeError(f"File not found: {path}. Make sure the locale '{locale}' is correct.")
-        env = UnityPy.load(path.as_posix())
-        data = env.container[f'Assets/AssetManifest/asset_catalog_locale_{locale}.asset'].read_typetree()
         
-        result = {
-            u['baseGuid']: {
-                'guid': u['guid'],
-                'bundle': data['m_bundleNames'][u['bundleId']],
+        result = {}
+        if not path.exists():
+            logging.warning(f"File not found: {path}. Make sure the locale '{locale}' is correct.")
+        else:
+            env = UnityPy.load(path.as_posix())
+            data = env.container[f'Assets/AssetManifest/asset_catalog_locale_{locale}.asset'].read_typetree()
+            
+            result = {
+                u['baseGuid']: {
+                    'guid': u['guid'],
+                    'bundle': data['m_bundleNames'][u['bundleId']],
+                }
+                for u in data['m_assets']
             }
-            for u in data['m_assets']
-        }
         self._cache[locale] = result
         return result

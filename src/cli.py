@@ -5,7 +5,7 @@ from parse_args import parse_args, HearthstoneExtractContext
 from unity3d import CommonUnity3d
 from utils.extract_audio import extract_audio, extract_audio_list, extract_audio_emote
 from utils.extract_image import extract_image
-from utils.helper import Context, get_guid, load_emote_type
+from utils.helper import Context, get_guid, load_emote_type, load_strings_gameplay_audio
 
 
 def extract_card(context: HearthstoneExtractContext, card_id: str):
@@ -19,7 +19,9 @@ def extract_card(context: HearthstoneExtractContext, card_id: str):
         output=context.output_path,
         asset_manifest=context.asset_manifest,
         locale_options=context.locale_options,
-        card_id=card_id
+        card_id=card_id,
+        ensure_ascii=context.ensure_ascii,
+        gameplay_audio=load_strings_gameplay_audio(context.input_path, context.locale_options)
     )
     if 'emote' in context.audio_options:
         emote_type = load_emote_type(context.input_path)
