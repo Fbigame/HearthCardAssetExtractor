@@ -29,8 +29,8 @@ jobs:
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hearth-card-asset
-          path: dist/hearth-card-asset.exe
+          name: card-asset
+          path: dist/card-asset.exe
 
   release:
     needs: build
@@ -62,12 +62,12 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: hearth-card-asset
+          name: card-asset
           path: artifacts
 
       - name: Upload exe to release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/hearth-card-asset.exe
+          files: artifacts/card-asset.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

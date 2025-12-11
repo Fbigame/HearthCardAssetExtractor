@@ -23,10 +23,10 @@ def build():
         "--onefile",
         "--follow-imports",
         "--include-package=UnityPy.resources",
-        "--onefile-tempdir-spec={CACHE_DIR}/hearth-card-asset",
-        "--user-package-configuration-file=hearth-card-asset.nuitka-package.config.yml",
+        "--onefile-tempdir-spec={CACHE_DIR}/hearthstone-card-asset-extractor",
+        "--user-package-configuration-file=card-asset.nuitka-package.config.yml",
         "--output-dir=" + output_dir.as_posix(),
-        "--output-filename=hearth-card-asset",
+        "--output-filename=card-asset",
         entry.as_posix()
     ]
     

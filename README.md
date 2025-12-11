@@ -12,7 +12,7 @@ python -m src [OPTIONS]
 ```
 如果你使用的release版本，则
 ```bash
-hearth-card-asset [OPTION]
+card-asset [OPTION]
 ```
 
 
@@ -50,6 +50,7 @@ hearth-card-asset [OPTION]
     - `reset-game`
     - `sub-spell`
     - `emote`
+    - `play`
   - 默认值：`none`
   - 例如：`--audio attack,death`
 
@@ -111,17 +112,17 @@ hearth-card-asset [OPTION]
 
 1. 提取所有卡牌的普通图片和攻击音频（中文）：
 ```bash
-hearth-card-asset --image normal --audio attack
+card-asset --image normal --audio attack
 ```
 
 2. 提取特定卡牌的所有图片和音频（英文）：
 ```bash
-hearth-card-asset --id HERO_01,HERO_02 --image all --audio all --locale enus
+card-asset --id HERO_01,HERO_02 --image all --audio all --locale enus
 ```
 
 3. 自定义输入输出路径：
 ```bash
-hearth-card-asset --input "C:\Hearthstone" --output ./my_assets --image all
+card-asset --input "C:\Hearthstone" --output ./my_assets --image all
 ```
 
 ## 使用风险
@@ -142,7 +143,7 @@ build
 
 ### 构建结果
 构建完成后，可执行文件将生成在`dist`目录中：
-- Windows: `dist/hearth-asset.exe`
+- Windows: `dist/card-asset.exe`
 
 ## 许可证
 ISC License

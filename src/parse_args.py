@@ -95,7 +95,7 @@ class HearthstoneExtractContext:
 
 
 def parse_args() -> HearthstoneExtractContext:
-    parser = argparse.ArgumentParser(description="Hearthstone card asset extractor")
+    parser = argparse.ArgumentParser(description="hearthstone-card-asset-extractor")
     
     # Add help and version handling
     parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {__version__}')
@@ -153,7 +153,7 @@ def parse_args() -> HearthstoneExtractContext:
         "--audio",
         type=wrap_parse_list_arg(*(args := (
             'additional-play', 'attack', 'death', 'lifetime',
-            'trigger', 'sub-option', 'reset-game', 'sub-spell', 'emote'
+            'trigger', 'sub-option', 'reset-game', 'sub-spell', 'emote', 'play'
         )), name='audio'),
         help=f'Audio types to extract: all, {", ".join(args)}, or none (default: none)',
         default="none"
