@@ -15,7 +15,7 @@ class CardSoundSpellReturnDict(TypedDict, total=False):
 
 
 class CardSoundSpellNormalReturnDict(TypedDict, total=False):
-    guid: str
+    sound_def: tuple['SoundDefReturnDict', ...]
     files: Sequence[str]
 
 
@@ -28,11 +28,16 @@ class CardSpecificVoDataReturnDict(TypedDict):
 
 
 class CardSpecificVoDataDict(TypedDict, total=False):
-    guid: str
+    sound_def: tuple['SoundDefReturnDict', ...]
     GameStringKey: str
     GameStringValue: dict[str, str]
     condition: CardSpecificVoDataReturnDict
     files: Sequence[str]
+
+
+class SoundDefReturnDict(TypedDict, total=False):
+    guid: str
+    weight: int
 
 
 class CommonUnity3d:
@@ -84,17 +89,17 @@ class CommonUnity3d:
             return None
         result = {}
         path_id = card_sound_spell['m_CardSoundData']['m_AudioSource']['m_PathID']
-        if audio_guid := self._sound_def(path_id):
-            result['normal'] = {'guid': audio_guid}
+        if sound_def := self._sound_def(path_id):
+            result['normal'] = {'sound_def': sound_def}
         if 'm_CardSpecificVoDataList' in card_sound_spell:
             specific = []
             for data in card_sound_spell['m_CardSpecificVoDataList']:
                 path_id = data['m_AudioSource']['m_PathID']
-                audio_guid = self._sound_def(path_id)
-                if not audio_guid:
+                sound_def = self._sound_def(path_id)
+                if not sound_def:
                     continue
                 specific.append({
-                    'guid': audio_guid.split(':')[-1],
+                    'sound_def': sound_def,
                     'GameStringKey': (key := data['m_GameStringKey']),
                     'GameStringValue': {
                         locale: text
@@ -113,14 +118,18 @@ class CommonUnity3d:
                 result['specific'] = specific
         return result  # noqa
     
-    def _sound_def(self, path_id: int) -> Optional[str]:
+    def _sound_def(self, path_id: int) -> tuple[SoundDefReturnDict, ...]:
         audio_source = self.path_id[path_id].read_typetree()
         path_id = audio_source['m_GameObject']['m_PathID']
         game_object = self.path_id[path_id].read_typetree()
         path_id = game_object['m_Component'][2]['component']['m_PathID']
         sound_def = self.path_id[path_id].read_typetree()
-        text: str = sound_def['m_AudioClip']
-        if text:
-            return text.split(':')[1]
+        if text := sound_def['m_AudioClip']:
+            return ({'guid': text.split(':')[-1], 'weight': 1},)
+        elif random_clips := sound_def['m_RandomClips']:
+            return tuple(
+                {'guid': guid.split(':')[-1], 'weight': u['m_Weight']}
+                for u in random_clips if (guid := u.get('m_Clip', None))
+            )
         else:
-            return None
+            return tuple()

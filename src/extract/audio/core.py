@@ -35,7 +35,7 @@ def extract_audios(context: CardContext, card_def: CardDefDict, options: Sequenc
             case 'emote':
                 struct[option] = extract_audio_emote(context, card_def['m_EmoteDefs'])
             case 'play':
-                struct[option] = extract_effect_def(context, card_def['m_PlayEffectDef'], 'play')
+                struct[option] = extract_effect_def(context, card_def['m_PlayEffectDef'], option)
             case _:
                 raise argparse.ArgumentTypeError(f'unknown audio option: {option}')
     

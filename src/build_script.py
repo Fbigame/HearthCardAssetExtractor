@@ -16,6 +16,7 @@ def build():
     output_dir = project_root / 'dist'
     output_dir.mkdir(parents=True, exist_ok=True)
     
+    config_file = project_root / "card-asset.nuitka-package.config.yml"
     cmd = [
         python_exe.as_posix(),
         "-m", "nuitka",
@@ -24,7 +25,7 @@ def build():
         "--follow-imports",
         "--include-package=UnityPy.resources",
         "--onefile-tempdir-spec={CACHE_DIR}/hearthstone-card-asset-extractor",
-        "--user-package-configuration-file=card-asset.nuitka-package.config.yml",
+        f"--user-package-configuration-file={config_file}",
         "--output-dir=" + output_dir.as_posix(),
         "--output-filename=card-asset",
         entry.as_posix()
