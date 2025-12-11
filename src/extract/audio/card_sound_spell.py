@@ -56,6 +56,7 @@ def extract_card_sound_spell(context: CardContext, guid: str, option: str, prefi
         card_sound_spell['normal']['guid_file_map'] = extract_asset(context, guid, option, f'{prefix}_normal')
     if specific := card_sound_spell.get('specific'):
         for i, unit in enumerate(specific, start=1):
+            guid = unit['guid']
             del unit['guid']
             unit['guid_file_map'] = extract_asset(context, guid, option, f'{prefix}_specific_{i}')
     return card_sound_spell

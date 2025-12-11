@@ -17,7 +17,7 @@ __all__ = [
 def configure_logging(output_path, level: str):
     level = {
         'debug': logging.DEBUG,
-        'info': logging.info,
+        'info': logging.INFO,
         'warning': logging.WARNING,
         'error': logging.ERROR,
         'critical': logging.CRITICAL,

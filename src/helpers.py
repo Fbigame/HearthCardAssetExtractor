@@ -21,6 +21,7 @@ class CardContext:
     merged_struct: bool
     gameplay_audio: dict[str, dict[str, str]] | None = None
 
+
 @lru_cache(maxsize=1)
 def load_emote_type(input_path: Path):
     import pythonnet
@@ -54,6 +55,9 @@ def load_strings_gameplay_audio(input_path: Path, locales: Sequence[str]):
             for row in reader:
                 # 祖传代码，忘记以前是踩了什么地方的坑要加\x00了
                 tag: str = row['TAG'].replace("\x00", '')  # noqa
+                logging.info(tag)
+                if tag.startswith('#'):
+                    continue
                 text: str = row['TEXT'].replace("\x00", '')  # noqa
                 result.setdefault(tag, {})[locale] = text
     return result
