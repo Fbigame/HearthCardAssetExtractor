@@ -1,6 +1,6 @@
 import logging
 
-from helpers import CardContext
+from context import CardContext
 from unity3d import CommonUnity3d
 from unity3d.common import SoundDefReturnDict
 
@@ -49,29 +49,38 @@ def extract_asset(
         
         for locale in context.locale_options:
             guid = base_guid
-            bundle = context.asset_manifest.base_assets_catalog[guid]
+            bundle = context.asset_manifest.base_assets_catalog.get(guid)
+            if not bundle:
+                unit['locale_guid'][locale] = guid
+                unit['locale_files'][locale] = []
+                continue
             
             # 替换本地化 GUID
             if locale != 'enus' and base_guid in (map_ := context.asset_manifest.asset_catalog_locale[locale]):
                 guid, bundle = map_[base_guid]['guid'], map_[base_guid]['bundle']
             
             # Unity 解析
-            asset_unity3d = CommonUnity3d(context.input, bundle)
-            obj = asset_unity3d.env.container[guid]
-            samples = obj.deref_parse_as_object().samples
-            
-            # 提取 wav 文件
-            files = []
-            for i, data in enumerate(samples.values(), start=1):
-                path = save_dir / f'{prefix}_{j}_{locale}{i}.wav'
-                files.append(path.as_posix())
-                if not context.no_assets:
-                    with path.open('wb') as f:
-                        f.write(data)
-            
-            # 存储新结构
-            unit['locale_guid'][locale] = guid
-            unit['locale_files'][locale] = files
+            try:
+                asset_unity3d = CommonUnity3d(context.input, bundle)
+                obj = asset_unity3d.env.container[guid]
+                samples = obj.deref_parse_as_object().samples
+                
+                # 提取 wav 文件
+                files = []
+                for i, data in enumerate(samples.values(), start=1):
+                    path = save_dir / f'{prefix}_{j}_{locale}{i}.wav'
+                    files.append(path.as_posix())
+                    if not context.no_assets:
+                        with path.open('wb') as f:
+                            f.write(data)
+                
+                # 存储新结构
+                unit['locale_guid'][locale] = guid
+                unit['locale_files'][locale] = files
+            except Exception as e:
+                logging.warning(f'解析音频发生异常：{e}')
+                unit['locale_guid'][locale] = guid
+                unit['locale_files'][locale] = []
         
         result.append(unit)
     
@@ -82,7 +91,9 @@ empty_card_sound_spell = {}
 
 
 def extract_card_sound_spell(context: CardContext, guid: str, option: str, prefix: str):
-    bundle = context.asset_manifest.base_assets_catalog[guid]
+    bundle = context.asset_manifest.base_assets_catalog.get(guid)
+    if not bundle:
+        return empty_card_sound_spell
     card_sound_spell = CommonUnity3d(context.input, bundle).CardSoundSpell(
         guid,
         gameplay_audio=context.gameplay_audio

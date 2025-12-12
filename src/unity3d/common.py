@@ -6,6 +6,7 @@ from typing import TypedDict, Optional, Sequence
 
 import UnityPy
 
+from helpers import safe_get
 from typed_dicts import CardDefDict, CardSoundSpellDict
 
 
@@ -74,43 +75,54 @@ class CommonUnity3d:
     def container(self):
         return self.env.container
     
-    def CardDef(self, guid: str) -> CardDefDict:
+    def CardDef(self, guid: str) -> CardDefDict | None:
         game_object = self.container[guid].read_typetree()
-        path_id = game_object['m_Component'][1]['component']['m_PathID']
+        path_id = safe_get(game_object, 'm_Component', 1, 'component', 'm_PathID')
+        if not path_id:
+            return None
         return self.path_id[path_id].read_typetree()
     
     def CardSoundSpell(self, guid: str, gameplay_audio: dict[str, dict[str, str]]) -> CardSoundSpellReturnDict | None:
+        if not guid:
+            return None
+        # 防止 UnityPy 空 PPtr (path_id==0) 或对象不存在导致 deref 报错
+        if not (guid in self.container and getattr(self.container[guid], 'path_id', None)):
+            return None
         game_object = self.container[guid].read_typetree()
-        path_id = game_object['m_Component'][1]['component']['m_PathID']
+        path_id = safe_get(game_object, 'm_Component', 1, 'component', 'm_PathID')
+        if not path_id:
+            return None
         card_sound_spell: CardSoundSpellDict = self.path_id[path_id].read_typetree()
         
         if 'm_CardSoundData' not in card_sound_spell:
             logging.warning(f'guid {guid} in {self._filename} 不是 CardSoundSpell')
             return None
         result = {}
-        path_id = card_sound_spell['m_CardSoundData']['m_AudioSource']['m_PathID']
+        path_id = safe_get(card_sound_spell, 'm_CardSoundData', 'm_AudioSource', 'm_PathID')
         if sound_def := self._sound_def(path_id):
             result['normal'] = {'sound_def': sound_def}
         if 'm_CardSpecificVoDataList' in card_sound_spell:
             specific = []
             for data in card_sound_spell['m_CardSpecificVoDataList']:
-                path_id = data['m_AudioSource']['m_PathID']
+                path_id = safe_get(data,'m_AudioSource', 'm_PathID')
+                if not path_id:
+                    continue
                 sound_def = self._sound_def(path_id)
                 if not sound_def:
                     continue
                 specific.append({
                     'sound_def': sound_def,
-                    'GameStringKey': (key := data['m_GameStringKey']),
+                    'GameStringKey': (key := data.get('m_GameStringKey')),
                     'GameStringValue': {
                         locale: text
                         for locale, text in gameplay_audio.get(key, {}).items()
                     },
                     'condition': {
-                        'm_CardId': data['m_CardId'],
-                        'm_RequireTag': data["m_RequireTag"],
-                        'm_SideToSearch': data["m_SideToSearch"],
-                        'm_TagValue': data["m_TagValue"],
-                        'm_ZonesToSearch': data["m_ZonesToSearch"],
+                        'm_CardId': data.get('m_CardId'),
+                        'm_RequireTag': data.get("m_RequireTag"),
+                        'm_SideToSearch': data.get("m_SideToSearch"),
+                        'm_TagValue': data.get("m_TagValue"),
+                        'm_ZonesToSearch': data.get("m_ZonesToSearch"),
                     },
                     
                 })
@@ -119,14 +131,33 @@ class CommonUnity3d:
         return result  # noqa
     
     def _sound_def(self, path_id: int) -> tuple[SoundDefReturnDict, ...]:
-        audio_source = self.path_id[path_id].read_typetree()
-        path_id = audio_source['m_GameObject']['m_PathID']
-        game_object = self.path_id[path_id].read_typetree()
-        path_id = game_object['m_Component'][2]['component']['m_PathID']
-        sound_def = self.path_id[path_id].read_typetree()
-        if text := sound_def['m_AudioClip']:
+        if not path_id:
+            return tuple()
+        audio_source = safe_get(self.path_id, path_id)
+        if not audio_source:
+            return tuple()
+        else:
+            audio_source = audio_source.read_typetree()
+        path_id = safe_get(audio_source, 'm_GameObject', 'm_PathID')
+        if not path_id:
+            return tuple()
+        game_object = safe_get(self.path_id, path_id)
+        if not game_object:
+            return tuple()
+        else:
+            game_object = game_object.read_typetree()
+        
+        path_id = safe_get(game_object, 'm_Component', 2, 'component', 'm_PathID')
+        if not path_id:
+            return tuple()
+        sound_def = self.path_id.get(path_id)
+        if not sound_def:
+            return tuple()
+        else:
+            sound_def = sound_def.read_typetree()
+        if text := sound_def.get('m_AudioClip'):
             return ({'guid': text.split(':')[-1], 'weight': 1},)
-        elif random_clips := sound_def['m_RandomClips']:
+        elif random_clips := sound_def.get('m_RandomClips'):
             return tuple(
                 {'guid': guid.split(':')[-1], 'weight': u['m_Weight']}
                 for u in random_clips if (guid := u.get('m_Clip', None))

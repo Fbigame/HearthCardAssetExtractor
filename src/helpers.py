@@ -1,25 +1,8 @@
 import csv
 import logging
-from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Sequence
-
-from unity3d import AssetManifest
-
-
-@dataclass
-class CardContext:
-    input: Path
-    output: Path
-    asset_manifest: AssetManifest
-    locale_options: tuple[str, ...]
-    card_id: str
-    ensure_ascii: bool
-    enable_sub_struct: bool
-    no_assets: bool
-    merged_struct: bool
-    gameplay_audio: dict[str, dict[str, str]] | None = None
+from typing import Sequence, Any
 
 
 @lru_cache(maxsize=1)
@@ -64,6 +47,34 @@ def load_strings_gameplay_audio(input_path: Path, locales: Sequence[str]):
 
 
 def get_guid(source: str) -> str | None:
-    if isinstance(source, str) and len(parts := source.split(':')) > 1:
-        return parts[1]
+    if isinstance(source, str):
+        if len(parts := source.split(':')) > 1:
+            return parts[1]
+        elif source:
+            return source
     return None
+
+
+def safe_get(obj: dict | list | Any, *path: str | int, default=None):
+    """安全地按路径访问嵌套结构.
+
+    Args:
+        obj: dict / list / any
+        path: list[str|int]
+        default: 返回的默认值
+    """
+    dummy = object()
+    for p in path:
+        if isinstance(obj, dict):
+            obj = obj.get(p, dummy)
+            if obj is dummy:
+                return default
+        elif isinstance(obj, list):
+            if not (isinstance(p, int) and 0 <= p < len(obj)):
+                return default
+            obj = obj[p]
+        else:
+            return default
+        if obj is None:
+            return default
+    return obj

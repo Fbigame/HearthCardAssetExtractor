@@ -2,7 +2,7 @@ import argparse
 import json
 from typing import Sequence
 
-from helpers import CardContext
+from context import CardContext
 from helpers import load_strings_gameplay_audio
 from typed_dicts import CardDefDict
 from .effect_def import extract_effect_def, extract_effect_defs

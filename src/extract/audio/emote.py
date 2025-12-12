@@ -1,7 +1,8 @@
 import json
 import logging
 
-from helpers import CardContext, load_emote_type, get_guid
+from helpers import load_emote_type, get_guid
+from context import CardContext
 from typed_dicts.card_def import CardDefEmoteDefsDict
 from .card_sound_spell import extract_card_sound_spell, empty_card_sound_spell
 

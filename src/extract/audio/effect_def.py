@@ -1,7 +1,8 @@
 import json
 import logging
 
-from helpers import CardContext, get_guid
+from helpers import get_guid
+from context import CardContext
 from typed_dicts.card_def import CardDefEffectDefDict
 from .card_sound_spell import extract_card_sound_spell, empty_card_sound_spell
 

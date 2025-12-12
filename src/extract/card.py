@@ -1,7 +1,7 @@
 import json
 import logging
 
-from helpers import CardContext
+from context import CardContext
 from parse_args import HearthstoneExtractContext
 from unity3d import CommonUnity3d
 from .audio import extract_audios

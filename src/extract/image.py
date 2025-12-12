@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Sequence
 
-from helpers import CardContext
+from context import CardContext
 from helpers import get_guid
 from typed_dicts import CardDefDict
 
@@ -27,10 +27,15 @@ def extract_asset(
     
     for locale in context.locale_options:
         guid = base_guid
-        bundle = context.asset_manifest.base_assets_catalog[guid]
+        bundle = context.asset_manifest.base_assets_catalog.get(guid)
         if locale != 'enus' and base_guid in (map_ := context.asset_manifest.asset_catalog_locale[locale]):
             guid, bundle = map_[base_guid]['guid'], map_[base_guid]['bundle']
-        
+        if not bundle:
+            result[locale] = {
+                'guid': guid,
+                'file': None,
+            }
+            continue
         path = (save_dir / f'{name}_{locale}.png').as_posix()
         
         result[locale] = {
@@ -39,10 +44,14 @@ def extract_asset(
         }
         if not context.no_assets:
             save_dir.mkdir(parents=True, exist_ok=True)
-            asset_unity3d = CommonUnity3d(context.input, bundle)
-            obj = asset_unity3d.env.container[guid]
-            data = obj.deref_parse_as_object()
-            data.image.save(path)
+            try:
+                asset_unity3d = CommonUnity3d(context.input, bundle)
+                obj = asset_unity3d.env.container[guid]
+                data = obj.deref_parse_as_object()
+                data.image.save(path)
+            except Exception as e:
+                logging.warning(f'解析图片出现异常：{e}')
+                result[locale]['file'] = None
     return result
 
 
