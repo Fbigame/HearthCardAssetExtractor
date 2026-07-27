@@ -1,18 +1,18 @@
 - module-name: 'UnityPy'
   data-files:
-    patterns:
-      - 'resources/uncompressed.tpk'
+    - patterns:
+        - 'resources/uncompressed.tpk'
 
 - module-name: 'fmod_toolkit'
   data-files:
-    patterns:
-      - 'libfmod/Windows/**/*.dll'
-      - 'libfmod/Linux/**/*.so'
-      - 'libfmod/Darwin/*.dylib'
+    - patterns:
+        - 'libfmod/Windows/**/*.dll'
+        - 'libfmod/Linux/**/*.so'
+        - 'libfmod/Darwin/*.dylib'
 
 - module-name: 'archspec'
   data-files:
-    dirs:
-      - 'json/cpu'
-    empty_dirs:
-      - 'cpu'
+    - dirs:
+        - 'json/cpu'
+      empty_dirs:
+        - 'cpu'

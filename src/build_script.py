@@ -22,6 +22,7 @@ def build():
         "-m", "nuitka",
         "--standalone",
         "--onefile",
+        "--lto=yes",
         "--follow-imports",
         "--include-package=UnityPy.resources",
         "--onefile-tempdir-spec={CACHE_DIR}/hearthstone-card-asset-extractor",
