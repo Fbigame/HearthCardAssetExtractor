@@ -108,6 +108,10 @@ card-asset [OPTION]
   - 可选值：`debug`, `info`, `warning`, `error`, `critical`
   - 例如：`--log_level debug` 或 `--log_level error`
 
+- `--fallback-unity-version`：设置 Unity 回退版本号（当资源文件中无法自动检测 Unity 版本时使用）
+  - 默认值：`6000.3.11f1`
+  - 例如：`--fallback-unity-version "2022.3.11f1"`
+
 ### 使用示例
 
 1. 提取所有卡牌的普通图片和攻击音频（中文）：

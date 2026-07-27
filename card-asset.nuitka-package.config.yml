@@ -2,6 +2,7 @@
   data-files:
     - patterns:
         - 'resources/uncompressed.tpk'
+        - 'resources/lzma.tpk'
 
 - module-name: 'fmod_toolkit'
   data-files:

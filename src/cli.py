@@ -8,11 +8,11 @@ from UnityPy.exceptions import UnityVersionFallbackWarning
 from extract.card import extract_card
 from parse_args import parse_args
 
-UnityPy.config.FALLBACK_UNITY_VERSION = "6000.3.11f1"
 warnings.filterwarnings("ignore", category=UnityVersionFallbackWarning)
 
 def main():
     context = parse_args()
+    UnityPy.config.FALLBACK_UNITY_VERSION = context.fallback_unity_version
     struct = {}
     for card_id in context.card_ids:
         try:

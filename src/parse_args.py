@@ -92,6 +92,7 @@ class HearthstoneExtractContext:
     enable_sub_struct: bool
     no_assets: bool
     merged_struct: bool
+    fallback_unity_version: str
 
 
 def parse_args() -> HearthstoneExtractContext:
@@ -198,6 +199,14 @@ def parse_args() -> HearthstoneExtractContext:
         help="Set the logging level (default: error).\n"
         "Available options: debug, info, warning, error, critical"
     )
+
+    # fallback_unity_version参数
+    parser.add_argument(
+        "--fallback-unity-version",
+        type=str,
+        default="6000.3.11f1",
+        help="Set the fallback Unity version for asset parsing (default: 6000.3.11f1)"
+    )
     
     # 如果没有传任何参数，打印帮助并退出
     if len(sys.argv) == 1:
@@ -224,6 +233,7 @@ def parse_args() -> HearthstoneExtractContext:
         enable_sub_struct=args.enable_sub_struct,
         no_assets=args.no_assets,
         merged_struct=args.merged_struct,
+        fallback_unity_version=args.fallback_unity_version,
         card_ids=(
             tuple(asset_manifest.cards_map.keys())
             if args.id == 'all'
